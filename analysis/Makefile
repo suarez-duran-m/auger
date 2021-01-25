@@ -25,14 +25,14 @@ I_RECINC= -I$(CDASHOME)/include/
 I_RECINC+= -I$(FD_ROOT)/include/
 
 
-all:   $(BIN_DIR)/selectStations
+all:   $(BIN_DIR)/analyseSDEU
 
 OBJS  = $(patsubst $(SRC_DIR)/%LinkDef.h, $(OBJ_DIR)/%Dict.o, $(wildcard $(SRC_DIR)/*LinkDef.h))
 OBJS += $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(wildcard $(SRC_DIR)/*.cc))
 
 
 
-$(BIN_DIR)/selectStations: $(OBJS)
+$(BIN_DIR)/analyseSDEU: $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	@echo -n "making exe..." 
 	$(LD) $(LDFLAGS) $(OBJS) -o $@ $(EXPLLINKLIBS) -I$(ROOTSYS)/include/  $(L_RECINC) -L$(ROOTSYS)/lib -lMinuit
@@ -51,6 +51,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc $(SRC_DIR)/%.h
 
 clean:
-	@rm -f *~ $(OBJS) $(BIN_DIR)/selectStations
+	@rm -f *~ $(OBJS) $(BIN_DIR)/analyseSDEU
 
 
