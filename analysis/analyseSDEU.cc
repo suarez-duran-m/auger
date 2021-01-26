@@ -42,11 +42,12 @@ int main (int argc, char *argv[]) {
     exit(0);
   }
   
-  cout << "======> I am  selecting events containing stations: "; 
+  /*cout << "======> I am  selecting events containing stations: "; 
   for (  vector<unsigned int>::const_iterator iter= stationsIds.begin();
          iter!= stationsIds.end(); ++iter)
     cout << *iter << " ";
   cout << " <====== " << endl;
+  */
   
   IoSd *sdFile = NULL;
   AugerFile *adFile = NULL;
@@ -81,7 +82,8 @@ int main (int argc, char *argv[]) {
         cout << "# Error " << event.Stations[i].Error << endl;
         
         if (event.Stations[i].Error==256) { //0+256
-          cout << event.Stations[i].UFadc->Traces.size() << endl;
+          cout << "# sizeTraces: " 
+               << event.Stations[i].UFadc->Traces.size() << endl;
           for (int k=0;k<event.Stations[i].UFadc->NSample;k++) {
             cout << k;
             for (int j=0;j<5;j++)
