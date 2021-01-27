@@ -93,7 +93,7 @@ int main (int argc, char *argv[]) {
         if (!sdFile)
           sdFile = new IoSd(outputName, "w");
         sdFile->Write(event, "");
-      }     
+      }
     }  
   }
   
