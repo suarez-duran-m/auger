@@ -164,7 +164,7 @@ int main (int argc, char *argv[]) {
         TString nameEvent = TString::UItoa(event.Id, 10);
         TString nameStati = TString::UItoa(event.Stations[i].Id, 10);
 
-        c1.Print("plots/jan2021/"+nameEvent+"-"+nameStati+".pdf");
+        //c1.Print("plots/jan2021/"+nameEvent+"-"+nameStati+".pdf");
         
         pmt0l.Reset();
         pmt1l.Reset();
@@ -177,8 +177,8 @@ int main (int argc, char *argv[]) {
         pmt2h.Reset();
         spmth.Reset();
         ssdpmth.Reset();
-      }
-    }
+       }
+     }
   }
   return 0;
 }

@@ -1,0 +1,19 @@
+First: selectStations 
+Filter for stations with UUB and save in root files.
+
+Second: analyseSDEU
+It uses the output root files from selection to get the traces
+for all UUB stations.
+
+Third: analyseSDEUbl
+It uses the output Root file from analyseSDEU, plotting the
+temporal series of: the baseline mean and Rms of the first 100
+bins of the traces. The Rms is calculated by the method GetRMS of
+TH1F root class, i.e. (1/n)*sum{ (xi - x)^2 }, where x is the
+mean. This codes saves these information into histogram and
+create a root file for each station.
+
+Fourth: readBl.C
+It uses the output Root files from analyseSDEUbl to fit gaussians
+to baseline mean and Rms distributions. This information can be
+used to filter events with traces out of the mean+-Rms.
