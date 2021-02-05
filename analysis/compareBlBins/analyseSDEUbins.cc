@@ -489,7 +489,7 @@ int main (int argc, char *argv[]) {
   c1.cd();
   pmt1meanf.GetXaxis()->SetTitle("Starts on 0 for first Event");
   pmt1meanf.GetYaxis()->SetTitle("Station");
-  //pmt1meanf.GetZaxis()->SetRangeUser(200,380);
+  pmt1meanf.GetZaxis()->SetRangeUser(180,300);
   pmt1meanf.SetStats(0);
   auto plain  = new TStyle("Plain","Plain Style (no colors/fill areas)");
   plain->SetPalette(53); 
@@ -500,7 +500,7 @@ int main (int argc, char *argv[]) {
   c2.cd();
   pmt1meanl.GetXaxis()->SetTitle("Starts on 0 for first Event");
   pmt1meanl.GetYaxis()->SetTitle("Station");
- // pmt1meanl.GetZaxis()->SetRangeUser(200,380);
+  pmt1meanl.GetZaxis()->SetRangeUser(180,300);
   pmt1meanl.SetStats(0);
   plain->SetPalette(53); 
   pmt1meanl.Draw("COLZ");
