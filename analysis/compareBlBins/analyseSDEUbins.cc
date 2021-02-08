@@ -138,6 +138,9 @@ int main (int argc, char *argv[]) {
   TH2F pmt1meanf("pmt1meanf", "Mean for First 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
   TH2F pmt1meanl("pmt1meanl", "Mean for Last 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
 
+  TH2F pmt1rmsf("pmt1rmsf", "RMS for First 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
+  TH2F pmt1rmsl("pmt1rmsl", "RMS for Last 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
+
   /*
   TH1F pmt1lbmeanf("pmt1lbmeanf","Station "+nameStati+" Mean First 100 bins PMT 1 Low", 5356800, 1606780800, 1612137600);
   TH1F pmt1lbmeanl("pmt1lbmeanl","Station "+nameStati+" Mean Last 100 bins PMT 1 Low", 5356800, 1606780800, 1612137600);
@@ -305,6 +308,9 @@ int main (int argc, char *argv[]) {
             if ( stationsBins[id] == event.Stations[i].Id ){
               pmt1meanf.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanf) );
               pmt1meanl.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanl) );
+
+              pmt1rmsf.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanf, getmean(mpmt1lbmeanf)) );
+              pmt1rmsl.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanl, getmean(mpmt1lbmeanl)) );
             }
 /*
           pmt1lbmeanf.Fill(event.utctime(), getmean(mpmt1lbmeanf));
@@ -505,6 +511,28 @@ int main (int argc, char *argv[]) {
   plain->SetPalette(53); 
   pmt1meanl.Draw("COLZ");
   c2.Print("../../plots/baselineMeanLast100.pdf");
+
+  TCanvas c3("c3", "2D", 0,0,3600,2400);
+  c3.cd();
+  pmt1rmsf.GetXaxis()->SetTitle("Starts on 0 for first Event");
+  pmt1rmsf.GetYaxis()->SetTitle("Station");
+  //pmt1rmsf.GetZaxis()->SetRangeUser(pmt1rmsf.GetZaxis()->GetXmin()*1.2, pmt1rmsf.GetZaxis()->GetXmax()*1.2);
+  pmt1rmsf.GetZaxis()->SetRangeUser(0, 1.6);
+  pmt1rmsf.SetStats(0);
+  plain->SetPalette(53); 
+  pmt1rmsf.Draw("COLZ");
+  c3.Print("../../plots/baselineRmsFirst100.pdf");
+
+  TCanvas c4("c4", "2D", 0,0,3600,2400);
+  c4.cd();
+  pmt1rmsl.GetXaxis()->SetTitle("Starts on 0 for first Event");
+  pmt1rmsl.GetYaxis()->SetTitle("Station");
+  //pmt1rmsl.GetZaxis()->SetRangeUser(pmt1rmsl.GetZaxis()->GetXmin()*1.5, pmt1rmsl.GetZaxis()->GetXmax()*1.5);
+  pmt1rmsl.GetZaxis()->SetRangeUser(0, 1.6);
+  pmt1rmsl.SetStats(0);
+  plain->SetPalette(53); 
+  pmt1rmsl.Draw("COLZ");
+  c4.Print("../../plots/baselineRmsLast100.pdf");
 
 
   hfile.Write();
