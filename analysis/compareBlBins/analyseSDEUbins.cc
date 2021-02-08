@@ -162,8 +162,8 @@ int main (int argc, char *argv[]) {
   TH2F pmt1lrmsf("pmt1lrmsf", "RMS for First 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
   TH2F pmt1lrmsl("pmt1lrmsl", "RMS for Last 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
 
-  TH2F pmt1ldiffmean("pmt1ldiffmean", "Mean Difference for First and Last 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
-  TH2F pmt1ldiffrms("pmt1ldiffrms", "RMS Difference for First and Last 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
+  TH2F pmt1ldiffmean("pmt1ldiffmean", "Difference of the mean of First and Last 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
+  TH2F pmt1ldiffrms("pmt1ldiffrms", "Difference of the RMS of First and Last 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
 
 
   TH2F pmt1hmeanf("pmt1hmeanf", "Mean for First 100 bins of Baseline PMT 1 HG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
@@ -172,8 +172,8 @@ int main (int argc, char *argv[]) {
   TH2F pmt1hrmsf("pmt1hrmsf", "RMS for First 100 bins of Baseline PMT 1 HG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
   TH2F pmt1hrmsl("pmt1hrmsl", "RMS for Last 100 bins of Baseline PMT 1 HG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
 
-  TH2F pmt1hdiffmean("pmt1hdiffmean", "Mean Difference for First and Last 100 bins of Baseline PMT 1 HG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
-  TH2F pmt1hdiffrms("pmt1hdiffrms", "RMS Difference for First and Last 100 bins of Baseline PMT 1 HG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
+  TH2F pmt1hdiffmean("pmt1hdiffmean", "Difference of the Mean for First and Last 100 bins of Baseline PMT 1 HG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
+  TH2F pmt1hdiffrms("pmt1hdiffrms", "Difference of the RMS for First and Last 100 bins of Baseline PMT 1 HG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
 
   TH2F ksdistpmt1h("ksdistpmt1h", "KS-Test for First and Last 100 bins of Baseline PMT 1 HG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
 
@@ -425,7 +425,7 @@ int main (int argc, char *argv[]) {
   c9.cd();
   ksdistpmt1h.GetXaxis()->SetTitle("Starts on 0 for first Event");
   ksdistpmt1h.GetYaxis()->SetTitle("Station");
-  ksdistpmt1h.GetZaxis()->SetRangeUser(0., 0.8);
+  ksdistpmt1h.GetZaxis()->SetRangeUser(0., 0.7);
   ksdistpmt1h.SetStats(0);
   plain->SetPalette(55); 
   ksdistpmt1h.Draw("COLZ");
