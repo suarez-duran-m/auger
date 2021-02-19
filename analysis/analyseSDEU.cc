@@ -16,8 +16,7 @@ using namespace std;
 
 int main (int argc, char *argv[]) {
   if ( argc < 4 ) {
-    cout << endl
-         << "Usage: " << argv[0] << " <stationsFile>  <output>  <files>" << endl
+    cout << endl << "Usage: " << argv[0] << " <stationsFile>  <output>  <files>" << endl
          << "  <stationsFile>: file with a list of stations" << endl
          << "  <output>: output file with whatever you want inside" << endl
          << "  <files>: IoSd or IoAuger files to be read" << endl;
@@ -57,15 +56,15 @@ int main (int argc, char *argv[]) {
   IoSd *sdFile = NULL;
   AugerFile *adFile = NULL;
 
-  TH1F pmt0l("pmt0l","Traces for PMT0 Low",2047,0,2048);
   TH1F pmt1l("pmt1l","Traces for PMT1 Low",2047,0,2048);
   TH1F pmt2l("pmt2l","Traces for PMT2 Low",2047,0,2048);
+  TH1F pmt3l("pmt3l","Traces for PMT3 Low",2047,0,2048);
   TH1F spmtl("spmtl","Traces for SPMT Low",2047,0,2048);
   TH1F ssdpmtl("ssdpmtl","Traces for SSDPMT Low",2047,0,2048);
 
-  TH1F pmt0h("pmt0h","Traces for PMT0 High",2047,0,2048);
   TH1F pmt1h("pmt1h","Traces for PMT1 High",2047,0,2048);
   TH1F pmt2h("pmt2h","Traces for PMT2 High",2047,0,2048);
+  TH1F pmt3h("pmt3h","Traces for PMT3 High",2047,0,2048);
   TH1F spmth("spmth","Traces for SPMT High",2047,0,2048);
   TH1F ssdpmth("ssdpmth","Traces for SSDPMT High",2047,0,2048);
 
@@ -121,15 +120,15 @@ int main (int argc, char *argv[]) {
           for (int k=0;k<event.Stations[i].UFadc->NSample;k++) {
             //cout << k << endl;
 
-            pmt0l.Fill( k, event.Stations[i].UFadc->GetValue(0,1,k) );
-            pmt1l.Fill( k, event.Stations[i].UFadc->GetValue(1,1,k) ); 
-            pmt2l.Fill( k, event.Stations[i].UFadc->GetValue(2,1,k) );
+            pmt1l.Fill( k, event.Stations[i].UFadc->GetValue(0,1,k) );
+            pmt2l.Fill( k, event.Stations[i].UFadc->GetValue(1,1,k) ); 
+            pmt3l.Fill( k, event.Stations[i].UFadc->GetValue(2,1,k) );
             spmtl.Fill( k, event.Stations[i].UFadc->GetValue(3,1,k) );
             ssdpmtl.Fill( k, event.Stations[i].UFadc->GetValue(4,1,k) );
 
-            pmt0h.Fill( k, event.Stations[i].UFadc->GetValue(0,0,k) );
-            pmt1h.Fill( k, event.Stations[i].UFadc->GetValue(1,0,k) );
-            pmt2h.Fill( k, event.Stations[i].UFadc->GetValue(2,1,k) );
+            pmt1h.Fill( k, event.Stations[i].UFadc->GetValue(0,0,k) );
+            pmt2h.Fill( k, event.Stations[i].UFadc->GetValue(1,0,k) );
+            pmt3h.Fill( k, event.Stations[i].UFadc->GetValue(2,0,k) );
             spmth.Fill( k, event.Stations[i].UFadc->GetValue(3,1,k) );
             ssdpmth.Fill( k, event.Stations[i].UFadc->GetValue(4,1,k) );
 
@@ -141,17 +140,17 @@ int main (int argc, char *argv[]) {
         }
             
         c1.cd(1);
-        pmt0l.Draw();
-        c1.cd(2);
-        pmt0h.Draw();
-        c1.cd(3);
         pmt1l.Draw();
-        c1.cd(4);
+        c1.cd(2);
         pmt1h.Draw();
-        c1.cd(5);
+        c1.cd(3);
         pmt2l.Draw();
-        c1.cd(6);
+        c1.cd(4);
         pmt2h.Draw();
+        c1.cd(5);
+        pmt3l.Draw();
+        c1.cd(6);
+        pmt3h.Draw();
         c1.cd(7);
         spmtl.Draw();
         c1.cd(8);
@@ -166,15 +165,15 @@ int main (int argc, char *argv[]) {
 
         //c1.Print("plots/jan2021/"+nameEvent+"-"+nameStati+".pdf");
         
-        pmt0l.Reset();
         pmt1l.Reset();
         pmt2l.Reset();
+        pmt3l.Reset();
         spmtl.Reset();
         ssdpmtl.Reset();
 
-        pmt0h.Reset();
         pmt1h.Reset();
         pmt2h.Reset();
+        pmt3h.Reset();
         spmth.Reset();
         ssdpmth.Reset();
        }
