@@ -16,21 +16,21 @@
 
 using namespace std;
 
-float getmean( int arr[] ){
+float getmean( int arr[], int nb ){
   float mean = 0.;
-  for (int i=0; i<100; i++)
+  for (int i=0; i<nb; i++)
     mean += arr[i];
-  return mean/100.;
+  return mean/(nb*1.);
 }
 
-float getrms( int arr[], float meanarr ){
+float getrms( int arr[], float meanarr, int nb ){
   float rms = 0.;
-  for (int i=0; i<100; i++)
+  for (int i=0; i<nb; i++)
     rms += (arr[i] - meanarr)*(arr[i] - meanarr);
-  return rms/100.;
+  return sqrt(rms/(nb*1.));
 }
 
-float kstest( int arr0[], int arr1[] ){
+float kstest( int arr0[], int arr1[], int nb){
   float ks = 0.;
   int min0 = 1000;
   int max0 = 0;
@@ -39,7 +39,7 @@ float kstest( int arr0[], int arr1[] ){
   int ming = 0;
   int maxg = 0;
 
-  for (int i=0; i<100; i++){
+  for (int i=0; i<nb; i++){
     if (arr0[i]<min0)
       min0 = arr0[i];
     if (arr0[i]>max0)
@@ -72,7 +72,7 @@ float kstest( int arr0[], int arr1[] ){
 
   float tmpbin = ming;
   for (int j=0; j<nbins; j++){
-    for (int i=0; i<100; i++){
+    for (int i=0; i<nb; i++){
       if ( arr0[i] <= tmpbin+0.5 )
         cumul0[j] += 1.;
       if ( arr1[i] <= tmpbin+0.5 )
@@ -99,8 +99,8 @@ float kstest( int arr0[], int arr1[] ){
   }
 */
   for ( int i=0; i<nbins; i++)
-    if ( (cumul0[i]-cumul1[i])/100. > ks )
-      ks = (cumul0[i]-cumul1[i])/100.;
+    if ( (cumul0[i]-cumul1[i])/(nb*1.) > ks )
+      ks = (cumul0[i]-cumul1[i])/(nb*1.);
  
   return ks;
 } 
@@ -155,6 +155,8 @@ int main (int argc, char *argv[]) {
     cout << i+1 << " -> " << stationsIds[i] << endl;
   }
 
+  int nblbins = 100;
+
   // For PMT 1   
   TH2F pmt1lmeanf("pmt1lmeanf", "Mean for First 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
   TH2F pmt1lmeanl("pmt1lmeanl", "Mean for Last 100 bins of Baseline PMT 1 LG", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
@@ -187,35 +189,35 @@ int main (int argc, char *argv[]) {
 
   TH2F ksdistcalib("ksdistcalib", "KS-Test for First and Last 100 bins of Baseline CALIB", totalNrEvents, 0, totalNrEvents, stationsIds.size(), 0, stationsIds.size());
 
-  int mpmt1lbmeanf[100];
-  int mpmt1lbmeanl[100];
+  int mpmt1lbmeanf[nblbins];
+  int mpmt1lbmeanl[nblbins];
 
-  int mpmt1hbmeanf[100];
-  int mpmt1hbmeanl[100];
+  int mpmt1hbmeanf[nblbins];
+  int mpmt1hbmeanl[nblbins];
 
-  int mpmt2lbmeanf[100];
-  int mpmt2lbmeanl[100];
+  int mpmt2lbmeanf[nblbins];
+  int mpmt2lbmeanl[nblbins];
 
-  int mpmt2hbmeanf[100];
-  int mpmt2hbmeanl[100];
+  int mpmt2hbmeanf[nblbins];
+  int mpmt2hbmeanl[nblbins];
 
-  int mpmt3lbmeanf[100];
-  int mpmt3lbmeanl[100];
+  int mpmt3lbmeanf[nblbins];
+  int mpmt3lbmeanl[nblbins];
 
-  int mpmt3hbmeanf[100];
-  int mpmt3hbmeanl[100];
+  int mpmt3hbmeanf[nblbins];
+  int mpmt3hbmeanl[nblbins];
 
-  int mspmtlbmeanf[100];
-  int mspmtlbmeanl[100];
+  int mspmtlbmeanf[nblbins];
+  int mspmtlbmeanl[nblbins];
 
-  int mcalibbmeanf[100];
-  int mcalibbmeanl[100];
+  int mcalibbmeanf[nblbins];
+  int mcalibbmeanl[nblbins];
 
-  int mssdpmtlbmeanf[100];
-  int mssdpmtlbmeanl[100];
+  int mssdpmtlbmeanf[nblbins];
+  int mssdpmtlbmeanl[nblbins];
 
-  int mssdpmthbmeanf[100];
-  int mssdpmthbmeanl[100];
+  int mssdpmthbmeanf[nblbins];
+  int mssdpmthbmeanl[nblbins];
 
 
   int previusEvent = 0;
@@ -254,13 +256,12 @@ int main (int argc, char *argv[]) {
         cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
           << " " << nrEventsRead-1
              << endl;
-        //cout << "# Error " << event.Stations[i].Error << endl;        
 
         IoSdEvent event(pos);
         
         if (event.Stations[i].Error==256) { //0+256
           nsample = event.Stations[i].UFadc->NSample;
-          for (int k=0;k<100;k++){
+          for (int k=0;k<nblbins;k++){
             mpmt1lbmeanf[k] = event.Stations[i].UFadc->GetValue(0,1,k);
             mpmt1lbmeanl[k] = event.Stations[i].UFadc->GetValue(0,1,(nsample - k));
 
@@ -291,39 +292,38 @@ int main (int argc, char *argv[]) {
             mssdpmthbmeanf[k] = event.Stations[i].UFadc->GetValue(4,0,k);
             mssdpmthbmeanl[k] = event.Stations[i].UFadc->GetValue(4,0,(nsample - k));
           }
-          //cout << "out: " << kstest(mpmt1lbmeanf, mpmt1lbmeanl) << endl;
             
           for ( int id=0; id<stationsIds.size(); id++)
             if ( stationsBins[id] == event.Stations[i].Id ){
-              pmt1lmeanf.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanf) );
-              pmt1lmeanl.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanl) );
-              pmt1lrmsf.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanf, getmean(mpmt1lbmeanf)) );
-              pmt1lrmsl.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanl, getmean(mpmt1lbmeanl)) );
+              pmt1lmeanf.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanf, nblbins) );
+              pmt1lmeanl.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanl, nblbins) );
+              pmt1lrmsf.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanf, getmean(mpmt1lbmeanf, nblbins), nblbins) );
+              pmt1lrmsl.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanl, getmean(mpmt1lbmeanl, nblbins), nblbins) );
 
-              pmt1hmeanf.Fill( nrEventsRead-1 , id, getmean(mpmt1hbmeanf) );
-              pmt1hmeanl.Fill( nrEventsRead-1 , id, getmean(mpmt1hbmeanl) );
-              pmt1hrmsf.Fill( nrEventsRead-1 , id, getrms(mpmt1hbmeanf, getmean(mpmt1hbmeanf)) );
-              pmt1hrmsl.Fill( nrEventsRead-1 , id, getrms(mpmt1hbmeanl, getmean(mpmt1hbmeanl)) );
+              pmt1hmeanf.Fill( nrEventsRead-1 , id, getmean(mpmt1hbmeanf, nblbins) );
+              pmt1hmeanl.Fill( nrEventsRead-1 , id, getmean(mpmt1hbmeanl, nblbins) );
+              pmt1hrmsf.Fill( nrEventsRead-1 , id, getrms(mpmt1hbmeanf, getmean(mpmt1hbmeanf, nblbins), nblbins) );
+              pmt1hrmsl.Fill( nrEventsRead-1 , id, getrms(mpmt1hbmeanl, getmean(mpmt1hbmeanl, nblbins), nblbins) );
 
-              calibmeanf.Fill( nrEventsRead-1 , id, getmean(mcalibbmeanf) );
-              calibmeanl.Fill( nrEventsRead-1 , id, getmean(mcalibbmeanl) );
-              calibrmsf.Fill( nrEventsRead-1 , id, getrms(mcalibbmeanf, getmean(mcalibbmeanf)) );
-              calibrmsl.Fill( nrEventsRead-1 , id, getrms(mcalibbmeanl, getmean(mcalibbmeanl)) );
+              calibmeanf.Fill( nrEventsRead-1 , id, getmean(mcalibbmeanf, nblbins) );
+              calibmeanl.Fill( nrEventsRead-1 , id, getmean(mcalibbmeanl, nblbins) );
+              calibrmsf.Fill( nrEventsRead-1 , id, getrms(mcalibbmeanf, getmean(mcalibbmeanf, nblbins), nblbins) );
+              calibrmsl.Fill( nrEventsRead-1 , id, getrms(mcalibbmeanl, getmean(mcalibbmeanl, nblbins), nblbins) );
 
-              pmt1ldiffmean.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanf) - getmean(mpmt1lbmeanl) );
-              pmt1ldiffrms.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanf, getmean(mpmt1lbmeanf)) - getrms(mpmt1lbmeanl, getmean(mpmt1lbmeanl)) );
+              pmt1ldiffmean.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanf, nblbins) - getmean(mpmt1lbmeanl, nblbins) );
+              pmt1ldiffrms.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanf, getmean(mpmt1lbmeanf, nblbins), nblbins) - getrms(mpmt1lbmeanl, getmean(mpmt1lbmeanl, nblbins), nblbins) );
 
-              pmt1hdiffmean.Fill( nrEventsRead-1 , id, abs(getmean(mpmt1hbmeanf) - getmean(mpmt1hbmeanl)) );
-              pmt1hdiffrms.Fill( nrEventsRead-1 , id, abs(getrms(mpmt1hbmeanf, getmean(mpmt1hbmeanf)) - getrms(mpmt1hbmeanl, getmean(mpmt1hbmeanl))) );
+              pmt1hdiffmean.Fill( nrEventsRead-1 , id, abs(getmean(mpmt1hbmeanf, nblbins) - getmean(mpmt1hbmeanl, nblbins)) );
+              pmt1hdiffrms.Fill( nrEventsRead-1 , id, abs(getrms(mpmt1hbmeanf, getmean(mpmt1hbmeanf, nblbins), nblbins) - getrms(mpmt1hbmeanl, getmean(mpmt1hbmeanl, nblbins), nblbins)) );
 
-              ksdistpmt1h.Fill( nrEventsRead-1 , id, kstest(mpmt1hbmeanf, mpmt1hbmeanl) );
-              ksdistcalib.Fill( nrEventsRead-1 , id, kstest(mcalibbmeanf, mcalibbmeanl) );
+              ksdistpmt1h.Fill( nrEventsRead-1 , id, kstest(mpmt1hbmeanf, mpmt1hbmeanl, nblbins) );
+              ksdistcalib.Fill( nrEventsRead-1 , id, kstest(mcalibbmeanf, mcalibbmeanl, nblbins) );
               
-              if ( kstest(mpmt1hbmeanf, mpmt1hbmeanl) > 0.25 )
-                cout << "KSpmt1 " << kstest(mpmt1hbmeanf, mpmt1hbmeanl) << " " << event.Id << " "
+              if ( kstest(mpmt1hbmeanf, mpmt1hbmeanl, nblbins) > 0.25 )
+                cout << "KSpmt1 " << kstest(mpmt1hbmeanf, mpmt1hbmeanl, nblbins) << " " << event.Id << " "
                   << event.Stations[i].Id 
                   << endl;
-              if ( kstest(mcalibbmeanf, mcalibbmeanl) > 0.25 )
+              if ( kstest(mcalibbmeanf, mcalibbmeanl, nblbins) > 0.25 )
                 cout << "KScalib " << event.Id << " "
                   << event.Stations[i].Id 
                   << endl;
@@ -332,174 +332,6 @@ int main (int argc, char *argv[]) {
       }
     }
   }
-
-  auto plain  = new TStyle("Plain","Plain Style (no colors/fill areas)");
-  TCanvas c1("c1", "2D", 0,0,3600,2400);
-  c1.cd();
-  pmt1lmeanf.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1lmeanf.GetYaxis()->SetTitle("Station");
-  pmt1lmeanf.GetZaxis()->SetRangeUser(180,300);
-  pmt1lmeanf.SetStats(0);
-  plain->SetPalette(53); 
-  pmt1lmeanf.Draw("COLZ");
-  c1.Print("../../plots/baselinePmt1MeanFirst100Lg.pdf");
-
-  TCanvas c2("c2", "2D", 0,0,3600,2400);
-  c2.cd();
-  pmt1lmeanl.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1lmeanl.GetYaxis()->SetTitle("Station");
-  pmt1lmeanl.GetZaxis()->SetRangeUser(180,300);
-  pmt1lmeanl.SetStats(0);
-  plain->SetPalette(53); 
-  pmt1lmeanl.Draw("COLZ");
-  c2.Print("../../plots/baselineMeanPmt1Last100Lg.pdf");
-
-  TCanvas c3("c3", "2D", 0,0,3600,2400);
-  c3.cd();
-  pmt1lrmsf.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1lrmsf.GetYaxis()->SetTitle("Station");
-  //pmt1lrmsf.GetZaxis()->SetRangeUser(pmt1rmsf.GetZaxis()->GetXmin()*1.2, pmt1rmsf.GetZaxis()->GetXmax()*1.2);
-  pmt1lrmsf.GetZaxis()->SetRangeUser(0, 1.6);
-  pmt1lrmsf.SetStats(0);
-  plain->SetPalette(53); 
-  pmt1lrmsf.Draw("COLZ");
-  c3.Print("../../plots/baselineRmsPmt1First100Lg.pdf");
-
-  TCanvas c4("c4", "2D", 0,0,3600,2400);
-  c4.cd();
-  pmt1lrmsl.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1lrmsl.GetYaxis()->SetTitle("Station");
-  //pmt1lrmsl.GetZaxis()->SetRangeUser(pmt1rmsl.GetZaxis()->GetXmin()*1.5, pmt1rmsl.GetZaxis()->GetXmax()*1.5);
-  pmt1lrmsl.GetZaxis()->SetRangeUser(0, 1.6);
-  pmt1lrmsl.SetStats(0);
-  plain->SetPalette(53); 
-  pmt1lrmsl.Draw("COLZ");
-  c4.Print("../../plots/baselinePmt1RmsLast100Lg.pdf");
-
-
-  // For High Gain
-  TCanvas c5("c5", "2D", 0,0,3600,2400);
-  c5.cd();
-  pmt1hmeanf.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hmeanf.GetYaxis()->SetTitle("Station");
-  pmt1hmeanf.GetZaxis()->SetRangeUser(180,320);
-  pmt1hmeanf.SetStats(0);
-  plain->SetPalette(55);
-  pmt1hmeanf.Draw("COLZ");
-  c5.Print("../../plots/baselinePmt1MeanFirst100Hg.pdf");
-
-  TCanvas c6("c6", "2D", 0,0,3600,2400);
-  c6.cd();
-  pmt1hmeanl.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hmeanl.GetYaxis()->SetTitle("Station");
-  pmt1hmeanl.GetZaxis()->SetRangeUser(180,320);
-  pmt1hmeanl.SetStats(0);
-  plain->SetPalette(55); 
-  pmt1hmeanl.Draw("COLZ");
-  c6.Print("../../plots/baselinePmt1MeanLast100Hg.pdf");
-
-  TCanvas c7("c7", "2D", 0,0,3600,2400);
-  c7.cd();
-  pmt1hrmsf.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hrmsf.GetYaxis()->SetTitle("Station");
-  //pmt1hrmsf.GetZaxis()->SetRangeUser(pmt1rmsf.GetZaxis()->GetXmin()*1.2, pmt1rmsf.GetZaxis()->GetXmax()*1.2);
-  pmt1hrmsf.GetZaxis()->SetRangeUser(0, 20.);
-  pmt1hrmsf.SetStats(0);
-  plain->SetPalette(55); 
-  pmt1hrmsf.Draw("COLZ");
-  c7.Print("../../plots/baselinePmt1RmsFirst100Hg.pdf");
-
-  TCanvas c8("c8", "2D", 0,0,3600,2400);
-  c8.cd();
-  pmt1hrmsl.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hrmsl.GetYaxis()->SetTitle("Station");
-  //pmt1hrmsl.GetZaxis()->SetRangeUser(pmt1rmsl.GetZaxis()->GetXmin()*1.5, pmt1rmsl.GetZaxis()->GetXmax()*1.5);
-  pmt1hrmsl.GetZaxis()->SetRangeUser(0, 20.);
-  pmt1hrmsl.SetStats(0);
-  plain->SetPalette(55); 
-  pmt1hrmsl.Draw("COLZ");
-  c8.Print("../../plots/baselinePmt1RmsLast100Hg.pdf");
-
-
-  TCanvas c9("c9", "2D", 0,0,3600,2400);
-  c9.cd();
-  ksdistpmt1h.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  ksdistpmt1h.GetYaxis()->SetTitle("Station");
-  ksdistpmt1h.GetZaxis()->SetRangeUser(0., 0.7);
-  ksdistpmt1h.SetStats(0);
-  plain->SetPalette(55); 
-  ksdistpmt1h.Draw("COLZ");
-  c9.Print("../../plots/baselinePmt1KSHg.pdf");
-
-  TCanvas c10("c10", "2D", 0,0,3600,2400);
-  c10.cd();
-  calibmeanf.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  calibmeanf.GetYaxis()->SetTitle("Station");
-  calibmeanf.GetZaxis()->SetRangeUser(180, 260.);
-  calibmeanf.SetStats(0);
-  plain->SetPalette(55); 
-  calibmeanf.Draw("COLZ");
-  c10.Print("../../plots/baselineCalibMeanFirst100.pdf");
-
-  TCanvas c11("c11", "2D", 0,0,3600,2400);
-  c11.cd();
-  calibmeanl.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  calibmeanl.GetYaxis()->SetTitle("Station");
-  calibmeanl.GetZaxis()->SetRangeUser(180, 260.);
-  calibmeanl.SetStats(0);
-  plain->SetPalette(55); 
-  calibmeanl.Draw("COLZ");
-  c11.Print("../../plots/baselineCalibMeanLast100.pdf");
-
-  TCanvas c12("c12", "2D", 0,0,3600,2400);
-  c12.cd();
-  calibrmsf.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  calibrmsf.GetYaxis()->SetTitle("Station");
-  calibrmsf.GetZaxis()->SetRangeUser(0, 0.6);
-  calibrmsf.SetStats(0);
-  plain->SetPalette(55); 
-  calibrmsf.Draw("COLZ");
-  c12.Print("../../plots/baselineCalibRmsFirst100.pdf");
-
-  TCanvas c13("c13", "2D", 0,0,3600,2400);
-  c13.cd();
-  calibrmsl.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  calibrmsl.GetYaxis()->SetTitle("Station");
-  calibrmsl.GetZaxis()->SetRangeUser(0, 0.6);
-  calibrmsl.SetStats(0);
-  plain->SetPalette(55); 
-  calibrmsl.Draw("COLZ");
-  c13.Print("../../plots/baselineCalibRmsLast100.pdf");
-
-  TCanvas c14("c14", "2D", 0,0,3600,2400);
-  c14.cd();
-  ksdistcalib.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  ksdistcalib.GetYaxis()->SetTitle("Station");
-  ksdistcalib.GetZaxis()->SetRangeUser(0, 0.4);
-  ksdistcalib.SetStats(0);
-  plain->SetPalette(55); 
-  ksdistcalib.Draw("COLZ");
-  c14.Print("../../plots/baselineCalibKS.pdf");
-
-  TCanvas c15("c15", "2D", 0,0,3600,2400);
-  c15.cd();
-  pmt1hdiffmean.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hdiffmean.GetYaxis()->SetTitle("Station");
-  pmt1hdiffmean.GetZaxis()->SetRangeUser(0., 20.);
-  pmt1hdiffmean.SetStats(0);
-  plain->SetPalette(55); 
-  pmt1hdiffmean.Draw("COLZ");
-  c15.Print("../../plots/baselineDiffMeanPmt1Hg.pdf");
-
-  TCanvas c16("c16", "2D", 0,0,3600,2400);
-  c16.cd();
-  pmt1hdiffrms.GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hdiffrms.GetYaxis()->SetTitle("Station");
-  pmt1hdiffrms.GetZaxis()->SetRangeUser(0., 5);
-  pmt1hdiffrms.SetStats(0);
-  plain->SetPalette(55); 
-  pmt1hdiffrms.Draw("COLZ");
-  c16.Print("../../plots/baselineDiffRmsPmt1Hg.pdf");
 
   hfile.Write();
   hfile.Close();
