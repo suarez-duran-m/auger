@@ -108,8 +108,9 @@ float kstest( int arr0[], int arr1[], int nb){
       ks = (cumul0[i]-cumul1[i])/(nb*1.); 
   return ks;
 } 
-
-
+// ========================== 
+// ******** The MAIN ********
+// ==========================
 int main (int argc, char *argv[]) {
    if ( argc < 4 ) {
      cout << endl
@@ -293,8 +294,8 @@ int main (int argc, char *argv[]) {
         
         if (event.Stations[i].Error==256) { //0+256
           for (unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++){
-            blpmth[k] = event.Stations[i].UFadc->GetValue(4,0,k);
-            blpmtl[k] = event.Stations[i].UFadc->GetValue(4,1,k);
+            blpmth[k] = event.Stations[i].UFadc->GetValue(pmtId,0,k);
+            blpmtl[k] = event.Stations[i].UFadc->GetValue(pmtId,1,k);
           }
           for ( int id=0; id<totSt; id++)
             if ( stationsBins[id] == event.Stations[i].Id ){

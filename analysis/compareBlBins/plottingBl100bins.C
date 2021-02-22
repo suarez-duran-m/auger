@@ -1,7 +1,21 @@
-void plottingBl100bins(int pmtId){
-  
+void plottingBl100bins(int pmtId){  
   TString filename;
-  filename.Form("bl100binsPMT%d.root", pmtId);
+  if ( pmtId < 3 )
+    filename.Form("bl100binsPMT%d.root", pmtId+1);
+  else if ( pmtId == 3 )
+    filename = "bl100binsSPMT.root";
+  else if ( pmtId == 4)
+    filename = "bl100binsPMTSSD.root";
+  else{
+    cout << "==================================================" << endl;
+    cout << "Wrong Id for PMT, please introduce a valid PMT Id:" << endl;
+    cout << "0 For PMT1; " << "1 For PMT2; " << "2 For PMT3; " 
+      << "3 For SPMT; " << "4 For PMTSSD" << endl;
+    cout << "==================================================" << endl;
+    exit(0);
+  }
+  cout << "You have selected " << filename << endl;
+    
   auto hFile = TFile::Open(filename);
   
   auto pmt1hmf = (TH2F*)hFile->Get("pmthmeanf");
