@@ -121,7 +121,7 @@ int main (int argc, char *argv[]) {
   }
 
   const char* stationsFileName = argv[1];
-  const char* outputName = argv[2];
+  const char* whichpmt = argv[2];
   AugerIoSd input(argc-3, argv+3);
   const unsigned int totalNrEvents = input.NumberOfEvents();
   
@@ -142,14 +142,28 @@ int main (int argc, char *argv[]) {
     cout << "Please specify the stations ids in the file " << endl;
     exit(0);
   }
-    
-  IoSd *sdFile = NULL;
-  AugerFile *adFile = NULL;
+  
   TString nameStati = to_string( stationsIds[0] );
-
-  TFile hfile("bl100binsPmtSsd.root","RECREATE","");
-
-  //TTree tree("T","");
+  TString pmtname = whichpmt;
+  int pmtId= atoi( pmtname );
+  if ( pmtId < 3 ){
+     pmtname = "PMT"+to_string( pmtId+1 );
+  }
+  else if ( pmtId == 3 )
+    pmtname = "SPMT";
+  else if ( pmtId == 4 )
+    pmtname = "PMTSSD";
+  else{
+    cout << "==================================================" << endl;
+    cout << "Wrong Id for PMT, please introduce a valid PMT Id:" << endl;
+    cout << "0 For PMT1; " << "1 For PMT2; " << "2 For PMT3; " 
+      << "3 For SPMT; " << "4 For PMTSSD" << endl;
+    cout << "==================================================" << endl;
+    exit(0);
+  }
+  cout << "You have selected " << pmtname << endl;
+  
+  TFile hfile("bl100bins"+pmtname+".root","RECREATE","");
 
   int totSt = stationsIds.size();
 
@@ -164,7 +178,6 @@ int main (int argc, char *argv[]) {
   vector < vector < int > > stckDrms;
   stckDrms.resize(totSt);
 
-  // For PMT 1
   sort(stationsIds.begin(), stationsIds.end());
   Double_t stationsBins[totSt];
   for ( int i=0; i<totSt; i++){
@@ -178,66 +191,41 @@ int main (int argc, char *argv[]) {
     }
     cout << i+1 << " -> " << stationsIds[i] << endl;
   }
-
-    int nblbins = 100;
-    int nday = 0;
+  
+  int nblbins = 100;
+  int nday = 0;
   int totDays = 62; // From 1st December, 2020 to 31st January, 2021
   int cday = 1606867200; //2nd December, 2020;
   int dday = 86400; 
   int tmpMean = 0;
+  
+  // For Low Gain
+  TH2F pmtlmeanf("pmtlmeanf", "Mean for First 100 bins of Baseline "+pmtname+" LG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmtlmeanl("pmtlmeanl", "Mean for Last 100 bins of Baseline "+pmtname+" LG", totDays, 0, totDays, totSt, 0, totSt);
 
-  // For PMT 1   
-  TH2F pmt1lmeanf("pmt1lmeanf", "Mean for First 100 bins of Baseline PMTSSD LG", totDays, 0, totDays, totSt, 0, totSt);
-  TH2F pmt1lmeanl("pmt1lmeanl", "Mean for Last 100 bins of Baseline PMTSSD LG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmtlrmsf("pmtlrmsf", "RMS for First 100 bins of Baseline "+pmtname+" LG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmtlrmsl("pmtlrmsl", "RMS for Last 100 bins of Baseline "+pmtname+" LG", totDays, 0, totDays, totSt, 0, totSt);
 
-  TH2F pmt1lrmsf("pmt1lrmsf", "RMS for First 100 bins of Baseline PMTSSD LG", totDays, 0, totDays, totSt, 0, totSt);
-  TH2F pmt1lrmsl("pmt1lrmsl", "RMS for Last 100 bins of Baseline PMTSSD LG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmtldiffmean("pmtldiffmean", "Difference of the mean of First and Last 100 bins of Baseline "+pmtname+" LG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmtldiffrms("pmtldiffrms", "Difference of the RMS of First and Last 100 bins of Baseline "+pmtname+" LG", totDays, 0, totDays, totSt, 0, totSt);
 
-  //TH2F pmt1ldiffmean("pmt1ldiffmean", "Difference of the mean of First and Last 100 bins of Baseline PMT 1 LG", totDays, 0, totDays, totSt, 0, totSt);
-  //TH2F pmt1ldiffrms("pmt1ldiffrms", "Difference of the RMS of First and Last 100 bins of Baseline PMT 1 LG", totDays, 0, totDays, totSt, 0, totSt);
+  // For High Gain
+  TH2F pmthmeanf("pmthmeanf", "Mean for First 100 bins of Baseline "+pmtname+" HG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmthmeanl("pmthmeanl", "Mean for Last 100 bins of Baseline "+pmtname+" HG", totDays, 0, totDays, totSt, 0, totSt);
 
+  TH2F pmthrmsf("pmthrmsf", "RMS for First 100 bins of Baseline "+pmtname+" HG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmthrmsl("pmthrmsl", "RMS for Last 100 bins of Baseline "+pmtname+" HG", totDays, 0, totDays, totSt, 0, totSt);
 
-  TH2F pmt1hmeanf("pmt1hmeanf", "Mean for First 100 bins of Baseline PMTSSD HG", totDays, 0, totDays, totSt, 0, totSt);
-  TH2F pmt1hmeanl("pmt1hmeanl", "Mean for Last 100 bins of Baseline PMTSSD HG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmthdiffmean("pmthdiffmean", "Difference of the Mean for First and Last 100 bins of Baseline "+pmtname+" HG", totDays, 0, totDays, totSt, 0, totSt);
+  TH2F pmthdiffrms("pmthdiffrms", "Difference of the RMS for First and Last 100 bins of Baseline "+pmtname+" HG", totDays, 0, totDays, totSt, 0, totSt);
 
-  TH2F pmt1hrmsf("pmt1hrmsf", "RMS for First 100 bins of Baseline PMTSSD HG", totDays, 0, totDays, totSt, 0, totSt);
-  TH2F pmt1hrmsl("pmt1hrmsl", "RMS for Last 100 bins of Baseline PMTSSD HG", totDays, 0, totDays, totSt, 0, totSt);
-
-  TH2F pmt1hdiffmean("pmt1hdiffmean", "Difference of the Mean for First and Last 100 bins of Baseline PMTSSD HG", totDays, 0, totDays, totSt, 0, totSt);
-  TH2F pmt1hdiffrms("pmt1hdiffrms", "Difference of the RMS for First and Last 100 bins of Baseline PMTSSD HG", totDays, 0, totDays, totSt, 0, totSt);
-
-  //TH2F ksdistpmt1h("ksdistpmt1h", "KS-Test for First and Last 100 bins of Baseline PMT 1 HG", totDays, 0, totDays, totSt, 0, totSt);
-
-
-  // For SSD
-  /*
-  TH2F ssdmeanf("ssdmeanf", "Mean for First 100 bins of Baseline ", totDays, 0, totDays, totSt, 0, totSt);
-  TH2F ssdmeanl("ssdmeanl", "Mean for Last 100 bins of Baseline CALIB", totDays, 0, totDays, totSt, 0, totSt);
-
-  TH2F ssdrmsf("ssdrmsf", "RMS for First 100 bins of Baseline CALIB", totDays, 0, totDays, totSt, 0, totSt);
-  TH2F ssdrmsl("ssdrmsl", "RMS for Last 100 bins of Baseline CALIB", totDays, 0, totDays, totSt, 0, totSt);
-
-  TH2F ksdistcalib("ksdistcalib", "KS-Test for First and Last 100 bins of Baseline CALIB", totDays, 0, totDays, totSt, 0, totSt);
-  */
 
   int lengthbl = 2048;
 
-  int blpmt1h[lengthbl];
-  int blpmt1l[lengthbl];
-/*
-  int blpmt2h[lengthbl];
-  int blpmt2l[lengthbl];
+  int blpmth[lengthbl];
+  int blpmtl[lengthbl];
 
-  int blpmt3h[lengthbl];
-  int blpmt3l[lengthbl];
-
-  int blspmt[lengthbl];
-  int blcali[lengthbl];
-
-  int blssdh[lengthbl];
-  int blssdl[lengthbl];
-*/
-  int previusEvent = 0;
+  unsigned int previusEvent = 0;
   int sameUtc = 0;
 
   unsigned int nrEvents = 0;
@@ -262,16 +250,20 @@ int main (int argc, char *argv[]) {
     if ( sameUtc > cday ){
       for ( int id=0; id<totSt; id++){
         if ( stckEvt[id] > 0 ){
-          pmt1hmeanf.Fill( nday , id, stckMean[id][0]/stckEvt[id] );
-          pmt1hmeanl.Fill( nday , id, stckMean[id][1]/stckEvt[id] );
-          pmt1lmeanf.Fill( nday , id, stckMean[id][2]/stckEvt[id] );
-          pmt1lmeanl.Fill( nday , id, stckMean[id][3]/stckEvt[id] );
-          pmt1hdiffmean.Fill( nday, id, stckMean[id][0]/stckEvt[id] - stckMean[id][1]/stckEvt[id] );
-          pmt1hrmsf.Fill( nday , id, stckRMS[id][0]/stckEvt[id] );
-          pmt1hrmsl.Fill( nday , id, stckRMS[id][1]/stckEvt[id] );
-          pmt1lrmsf.Fill( nday , id, stckRMS[id][2]/stckEvt[id] );
-          pmt1lrmsl.Fill( nday , id, stckRMS[id][3]/stckEvt[id] );
-          pmt1hdiffrms.Fill( nday, id, stckRMS[id][0]/stckEvt[id] - stckRMS[id][1]/stckEvt[id] );
+          pmthmeanf.Fill( nday , id, stckMean[id][0]/stckEvt[id] );
+          pmthmeanl.Fill( nday , id, stckMean[id][1]/stckEvt[id] );
+          pmthrmsf.Fill( nday , id, stckRMS[id][0]/stckEvt[id] );
+          pmthrmsl.Fill( nday , id, stckRMS[id][1]/stckEvt[id] );
+          pmthdiffmean.Fill( nday, id, stckMean[id][0]/stckEvt[id] - stckMean[id][1]/stckEvt[id] );
+          pmthdiffrms.Fill( nday, id, stckRMS[id][0]/stckEvt[id] - stckRMS[id][1]/stckEvt[id] );
+
+          pmtlmeanf.Fill( nday , id, stckMean[id][2]/stckEvt[id] );
+          pmtlmeanl.Fill( nday , id, stckMean[id][3]/stckEvt[id] );
+          pmtlrmsf.Fill( nday , id, stckRMS[id][2]/stckEvt[id] );
+          pmtlrmsl.Fill( nday , id, stckRMS[id][3]/stckEvt[id] );
+          pmtldiffmean.Fill( nday, id, stckMean[id][2]/stckEvt[id] - stckMean[id][3]/stckEvt[id] );
+          pmtldiffrms.Fill( nday, id, stckRMS[id][2]/stckEvt[id] - stckRMS[id][3]/stckEvt[id] );
+
           for ( int k=0; k<4; k++ ){
             stckMean[id][k] = 0;
             stckRMS[id][k] = 0;
@@ -279,7 +271,6 @@ int main (int argc, char *argv[]) {
           }
         }
       }
-      cout << "msd " << cday << " " << nday << endl;
       cday += dday;
       nday++;
     }
@@ -301,80 +292,28 @@ int main (int argc, char *argv[]) {
         IoSdEvent event(pos);
         
         if (event.Stations[i].Error==256) { //0+256
-          for (int k=0;k<event.Stations[i].UFadc->NSample;k++){
-            blpmt1h[k] = event.Stations[i].UFadc->GetValue(4,0,k);
-            blpmt1l[k] = event.Stations[i].UFadc->GetValue(4,1,k);
-    /*
-            blpmt2h[k] = event.Stations[i].UFadc->GetValue(0,0,k);
-            blpmt2l[k] = event.Stations[i].UFadc->GetValue(0,1,k);
-    
-            blpmt3h[k] = event.Stations[i].UFadc->GetValue(0,0,k);
-            blpmt3l[k] = event.Stations[i].UFadc->GetValue(0,1,k);
-    
-            blspmth[k] = event.Stations[i].UFadc->GetValue(0,0,k);
-            blspmtl[k] = event.Stations[i].UFadc->GetValue(0,1,k);
-    
-            blssdh[k] = event.Stations[i].UFadc->GetValue(0,0,k);
-            blssdl[k] = event.Stations[i].UFadc->GetValue(0,1,k);
-            */
+          for (unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++){
+            blpmth[k] = event.Stations[i].UFadc->GetValue(4,0,k);
+            blpmtl[k] = event.Stations[i].UFadc->GetValue(4,1,k);
           }
           for ( int id=0; id<totSt; id++)
             if ( stationsBins[id] == event.Stations[i].Id ){
               stckEvt[id]++;
-              tmpMean = getmean(blpmt1h, nblbins, 0);
+              tmpMean = getmean(blpmth, nblbins, 0);
               stckMean[id][0] += tmpMean;
-              stckRMS[id][0] += getrms(blpmt1h, tmpMean, nblbins, 0);
-              tmpMean = getmean(blpmt1h, nblbins, 1);
+              stckRMS[id][0] += getrms(blpmth, tmpMean, nblbins, 0);
+              tmpMean = getmean(blpmth, nblbins, 1);
               stckMean[id][1] += tmpMean;
-              stckRMS[id][1] += getrms(blpmt1h, tmpMean, nblbins, 1);
+              stckRMS[id][1] += getrms(blpmth, tmpMean, nblbins, 1);
     
-              tmpMean = getmean(blpmt1l, nblbins, 0);
+              tmpMean = getmean(blpmtl, nblbins, 0);
               stckMean[id][2] += tmpMean;
-              stckRMS[id][2] += getrms(blpmt1l, tmpMean, nblbins, 0);
-              tmpMean = getmean(blpmt1l, nblbins, 1);
+              stckRMS[id][2] += getrms(blpmtl, tmpMean, nblbins, 0);
+              tmpMean = getmean(blpmtl, nblbins, 1);
               stckMean[id][3] += tmpMean;
-              stckRMS[id][3] += getrms(blpmt1l, tmpMean, nblbins, 1);
+              stckRMS[id][3] += getrms(blpmtl, tmpMean, nblbins, 1);
               break;
-            } 
-             /*
-          for ( int id=0; id<totSt; id++)
-            if ( stationsBins[id] == event.Stations[i].Id ){
-              pmt1hmeanf.Fill( nrEventsRead-1 , id, getmean(blpmt1h, nblbins, 0) );
-              pmt1hmeanl.Fill( nrEventsRead-1 , id, getmean(blpmt1h, nblbins, 1) );
-
-              pmt1hrmsf.Fill( nrEventsRead-1 , id, getrms(blpmt1h, getmean(blpmt1h, nblbins, 0), nblbins, 0) );
-              pmt1hrmsl.Fill( nrEventsRead-1 , id, getrms(blpmt1h, getmean(blpmt1h, nblbins, 0), nblbins, 0) );
-
-              pmt1lmeanf.Fill( nrEventsRead-1 , id, getmean(blpmt1l, nblbins, 0) );
-              pmt1lmeanl.Fill( nrEventsRead-1 , id, getmean(blpmt1l, nblbins, 1) );
-
-              pmt1lrmsf.Fill( nrEventsRead-1 , id, getrms(blpmt1l, getmean(blpmt1l, nblbins, 0), nblbins, 0) );
-              pmt1lrmsl.Fill( nrEventsRead-1 , id, getrms(blpmt1l, getmean(blpmt1l, nblbins, 1), nblbins, 0) );
-
-              calibrmsf.Fill( nrEventsRead-1 , id, getrms(mcalibbmeanf, getmean(mcalibbmeanf, nblbins), nblbins) );
-              calibrmsl.Fill( nrEventsRead-1 , id, getrms(mcalibbmeanl, getmean(mcalibbmeanl, nblbins), nblbins) );
-
-              pmt1ldiffmean.Fill( nrEventsRead-1 , id, getmean(mpmt1lbmeanf, nblbins) - getmean(mpmt1lbmeanl, nblbins) );
-              pmt1ldiffrms.Fill( nrEventsRead-1 , id, getrms(mpmt1lbmeanf, getmean(mpmt1lbmeanf, nblbins), nblbins) - getrms(mpmt1lbmeanl, getmean(mpmt1lbmeanl, nblbins), nblbins) );
-
-              pmt1hdiffmean.Fill( nrEventsRead-1 , id, abs(getmean(mpmt1hbmeanf, nblbins) - getmean(mpmt1hbmeanl, nblbins)) );
-              pmt1hdiffrms.Fill( nrEventsRead-1 , id, abs(getrms(mpmt1hbmeanf, getmean(mpmt1hbmeanf, nblbins), nblbins) - getrms(mpmt1hbmeanl, getmean(mpmt1hbmeanl, nblbins), nblbins)) );
-
-              ksdistpmt1h.Fill( nrEventsRead-1 , id, kstest(mpmt1hbmeanf, mpmt1hbmeanl, nblbins) );
-              ksdistcalib.Fill( nrEventsRead-1 , id, kstest(mcalibbmeanf, mcalibbmeanl, nblbins) );
-              
-              if ( kstest(mpmt1hbmeanf, mpmt1hbmeanl, nblbins) > 0.25 )
-                cout << "KSpmt1 " << kstest(mpmt1hbmeanf, mpmt1hbmeanl, nblbins) << " " << event.Id << " "
-                  << event.Stations[i].Id 
-                  << endl;
-              if ( kstest(mcalibbmeanf, mcalibbmeanl, nblbins) > 0.25 )
-                cout << "KScalib " << event.Id << " "
-                  << event.Stations[i].Id 
-                  << endl;
-                  
             }
-            */
-          
         }
       }
     }    

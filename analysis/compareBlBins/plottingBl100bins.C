@@ -1,14 +1,17 @@
-void plottingBl100bins() {
-  auto hFile = TFile::Open("bl100binsPmt1.root");
+void plottingBl100bins(int pmtId){
   
-  auto pmt1hmf = (TH2F*)hFile->Get("pmt1hmeanf");
-  auto pmt1hml = (TH2F*)hFile->Get("pmt1hmeanl");
+  TString filename;
+  filename.Form("bl100binsPMT%d.root", pmtId);
+  auto hFile = TFile::Open(filename);
+  
+  auto pmt1hmf = (TH2F*)hFile->Get("pmthmeanf");
+  auto pmt1hml = (TH2F*)hFile->Get("pmthmeanl");
 
-  auto pmt1hrf = (TH2F*)hFile->Get("pmt1hrmsf");
-  auto pmt1hrl = (TH2F*)hFile->Get("pmt1hrmsl");
+  auto pmt1hrf = (TH2F*)hFile->Get("pmthrmsf");
+  auto pmt1hrl = (TH2F*)hFile->Get("pmthrmsl");
 
-  auto pmt1hdm = (TH2F*)hFile->Get("pmt1hdiffmean");
-  auto pmt1hdr = (TH2F*)hFile->Get("pmt1hdiffrms");
+  auto pmt1hdm = (TH2F*)hFile->Get("pmthdiffmean");
+  auto pmt1hdr = (TH2F*)hFile->Get("pmthdiffrms");
 
   //auto pmt1hks = (TH2F*)hFile->Get("ksdistpmt1h");
 
@@ -95,7 +98,6 @@ void plottingBl100bins() {
   plain->SetGridStyle(9);
   c3.SetGridy();
   c3.SetGridx();
-  //c3.SetLogz();
   pmt1hrf->Draw("COLZ");
   //c3.Print("testRmsFirst100Hg.pdf");
   c3.Print("../../plots/blPmt1RmsFirst100Hg.pdf");
@@ -121,7 +123,6 @@ void plottingBl100bins() {
   plain->SetGridStyle(9);
   c4.SetGridy();
   c4.SetGridx();
-  //c4.SetLogz();
   pmt1hrl->Draw("COLZ");
   //c4.Print("testRmsLast100Hg.pdf");
   c4.Print("../../plots/blPmt1RmsLast100Hg.pdf");
@@ -148,7 +149,6 @@ void plottingBl100bins() {
   plain->SetGridStyle(9);
   c5.SetGridy();
   c5.SetGridx();
-  //c5.SetLogz();
   pmt1hdm->Draw("COLZ");
   //c5.Print("testRmsLast100Hg.pdf");
   c5.Print("../../plots/blPmt1Diffmean100Hg.pdf");
@@ -175,76 +175,7 @@ void plottingBl100bins() {
   plain->SetGridStyle(9);
   c6.SetGridy();
   c6.SetGridx();
-  //c6.SetLogz();
   pmt1hdr->Draw("COLZ");
   //c6.Print("testRmsLast100Hg.pdf");
   c6.Print("../../plots/blPmt1Diffrms100Hg.pdf");
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-  TCanvas c5("c5", "2D", 0,0,3600,2400);
-  c5.cd();
-  pmt1hdm->GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hdm->GetYaxis()->SetTitle("Station");
-  //pmt1hdm->GetZaxis()->SetTitle("FADC");
-  pmt1hdm->GetZaxis()->SetRangeUser(0.01,120.);
-  pmt1hdm->SetStats(0);
-  pmt1hdm->GetYaxis()->SetNdivisions(1020, "kTRUE");
-  pmt1hdm->GetYaxis()->SetTickLength(0.);
-  for ( int i=0; i<19; i++)
-    pmt1hdm->GetYaxis()->SetBinLabel(i+1, stIds[i]);
-  plain->SetPalette(55);
-  plain->SetGridStyle(9);
-  c5.SetGridy();
-  c5.SetLogz();
-  pmt1hdm->Draw("COLZ");
-  c5.Print("../../plots/baselineDiffMeanPmt1Hg.pdf");
-
-  TCanvas c6("c6", "2D", 0,0,3600,2400);
-  c6.cd();
-  pmt1hdr->GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hdr->GetYaxis()->SetTitle("Station");
-  //pmt1hdr->GetZaxis()->SetTitle("FADC");
-  pmt1hdr->GetZaxis()->SetRangeUser(0.01,120.);
-  pmt1hdr->SetStats(0);
-  pmt1hdr->GetYaxis()->SetNdivisions(1020, "kTRUE");
-  pmt1hdr->GetYaxis()->SetTickLength(0.);
-  for ( int i=0; i<19; i++)
-    pmt1hdr->GetYaxis()->SetBinLabel(i+1, stIds[i]);
-  plain->SetPalette(55);
-  plain->SetGridStyle(9);
-  c6.SetGridy();
-  c6.SetLogz();
-  pmt1hdr->Draw("COLZ");
-  c6.Print("../../plots/baselineDiffRmsPmt1Hg.pdf");
-
-  TCanvas c7("c7", "2D", 0,0,3600,2400);
-  c7.cd();
-  pmt1hks->GetXaxis()->SetTitle("Starts on 0 for first Event");
-  pmt1hks->GetYaxis()->SetTitle("Station");
-  //pmt1hdr->GetZaxis()->SetTitle("FADC");
-  pmt1hks->GetZaxis()->SetRangeUser(0.001,1.);
-  pmt1hks->SetStats(0);
-  pmt1hks->GetYaxis()->SetNdivisions(1020, "kTRUE");
-  pmt1hks->GetYaxis()->SetTickLength(0.);
-  for ( int i=0; i<19; i++)
-    pmt1hks->GetYaxis()->SetBinLabel(i+1, stIds[i]);
-  plain->SetPalette(55);
-  plain->SetGridStyle(9);
-  c7.SetGridy();
-  c7.SetLogz();
-  pmt1hks->Draw("COLZ");
-  c7.Print("../../plots/baselinePmt1KSHg.pdf");
-*/
 }
