@@ -147,22 +147,23 @@ int main (int argc, char *argv[]) {
   TString nameStati = to_string( stationsIds[0] );
   TString pmtname = whichpmt;
   int pmtId= atoi( pmtname );
-  if ( pmtId < 3 ){
-     pmtname = "PMT"+to_string( pmtId+1 );
+  if ( pmtId > 0 && pmtId < 4 ){
+     pmtname = "PMT"+to_string( pmtId );
+  //c5.Print("testRmsLast100Hg.pdf");
   }
-  else if ( pmtId == 3 )
-    pmtname = "SPMT";
   else if ( pmtId == 4 )
+    pmtname = "SPMT";
+  else if ( pmtId == 5 )
     pmtname = "PMTSSD";
   else{
-    cout << "==================================================" << endl;
-    cout << "Wrong Id for PMT, please introduce a valid PMT Id:" << endl;
-    cout << "0 For PMT1; " << "1 For PMT2; " << "2 For PMT3; " 
-      << "3 For SPMT; " << "4 For PMTSSD" << endl;
-    cout << "==================================================" << endl;
+    cerr << "==================================================" << endl;
+    cerr << "Wrong Id for PMT, please introduce a valid PMT Id:" << endl;
+    cerr << "1 For PMT1; " << "2 For PMT2; " << "3 For PMT3; " 
+      << "4 For SPMT; " << "5 For PMTSSD" << endl;
+    cerr << "==================================================" << endl;
     exit(0);
   }
-  cout << "You have selected " << pmtname << endl;
+  cerr << "You have selected " << pmtname << endl;
   
   TFile hfile("bl100bins"+pmtname+".root","RECREATE","");
 
@@ -170,14 +171,10 @@ int main (int argc, char *argv[]) {
 
   vector < int > stckEvt;
   stckEvt.resize(totSt);
-  vector < vector < int > > stckMean;
+  vector < vector < float > > stckMean;
   stckMean.resize(totSt);
   vector < vector < float > > stckRMS;
   stckRMS.resize(totSt);
-  vector < vector < int > > stckDmean;
-  stckDmean.resize(totSt);
-  vector < vector < int > > stckDrms;
-  stckDrms.resize(totSt);
 
   sort(stationsIds.begin(), stationsIds.end());
   Double_t stationsBins[totSt];
@@ -187,8 +184,6 @@ int main (int argc, char *argv[]) {
     for ( int j=0; j<20; j++ ){
       stckMean[i].push_back(0);
       stckRMS[i].push_back(0.);
-      stckDmean[i].push_back(0.);
-      stckDrms[i].push_back(0.);
     }
     cout << i+1 << " -> " << stationsIds[i] << endl;
   }
@@ -198,7 +193,7 @@ int main (int argc, char *argv[]) {
   int totDays = 62; // From 1st December, 2020 to 31st January, 2021
   int cday = 1606867200; //2nd December, 2020;
   int dday = 86400; 
-  int tmpMean = 0;
+  float tmpMean = 0;
   
   // For Low Gain
   TH2F pmtlmeanf("pmtlmeanf", "Mean for First 100 bins of Baseline "+pmtname+" LG", totDays, 0, totDays, totSt, 0, totSt);
@@ -257,6 +252,9 @@ int main (int argc, char *argv[]) {
           pmthrmsl.Fill( nday , id, stckRMS[id][1]/stckEvt[id] );
           pmthdiffmean.Fill( nday, id, stckMean[id][0]/stckEvt[id] - stckMean[id][1]/stckEvt[id] );
           pmthdiffrms.Fill( nday, id, stckRMS[id][0]/stckEvt[id] - stckRMS[id][1]/stckEvt[id] );
+          //if ( id==0 )
+            //cout << "msd: " << nday << " " 
+              //<< stckRMS[id][0]/stckEvt[id] - stckRMS[id][1]/stckEvt[id] << endl;
 
           pmtlmeanf.Fill( nday , id, stckMean[id][2]/stckEvt[id] );
           pmtlmeanl.Fill( nday , id, stckMean[id][3]/stckEvt[id] );
@@ -294,8 +292,8 @@ int main (int argc, char *argv[]) {
         
         if (event.Stations[i].Error==256) { //0+256
           for (unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++){
-            blpmth[k] = event.Stations[i].UFadc->GetValue(pmtId,0,k);
-            blpmtl[k] = event.Stations[i].UFadc->GetValue(pmtId,1,k);
+            blpmth[k] = event.Stations[i].UFadc->GetValue(pmtId-1,0,k);
+            blpmtl[k] = event.Stations[i].UFadc->GetValue(pmtId-1,1,k);
           }
           for ( int id=0; id<totSt; id++)
             if ( stationsBins[id] == event.Stations[i].Id ){
