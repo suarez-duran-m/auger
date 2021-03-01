@@ -122,7 +122,8 @@ int main (int argc, char *argv[]) {
 
   TFile hfile("zooTraces100bins"+pmtname+".root","RECREATE","");
 
-  TH2F badTrac ("badTrac","Traces not Ok "+pmtname+"HG", totalNrEvents, 0, totalNrEvents, 2*nblbins, 0, 2*nblbins);
+  TH2F badTrac ("badTrac","Traces not Ok "+pmtname+"HG", totalNrEvents, 0, totalNrEvents, 25*nblbins, 0, 25*nblbins);
+  TH2F gooTrac ("gooTrac","Traces not Ok "+pmtname+"HG", totalNrEvents, 0, totalNrEvents, 25*nblbins, 0, 25*nblbins);
   TH1F badTrEv ("badTrEv","Traces not Ok "+pmtname+"HG", totalNrEvents, 0, totalNrEvents);
 
   int totSt = stationsIds.size();
@@ -246,14 +247,18 @@ int main (int argc, char *argv[]) {
               diffr = rmsf - rmsl;
               if (fabs(meanl-meanf) < 2*rmsf){
                 stckOk[id][0]++;
+                if( id==8 )
+                  for (int k=0; k<blpmth->size(); k++)
+                    gooTrac.Fill( nrEventsRead, k, (*blpmth)[k] );
               }
               else if( id==9 ){
-                int tmp = blpmth->size() - 1;
-                for (int k=0; k<nblbins; k++){
+                //cerr << previusEvent << " " << nrEventsRead << endl;
+                int tmp = blpmth->size();
+                for (int k=0; k<tmp; k++){
                   badTrac.Fill( nrEventsRead, k, (*blpmth)[k] );
-                  badTrac.Fill( nrEventsRead, k+nblbins, (*blpmth)[tmp-k] );
-                  badTrEv.Fill( nrEventsRead, event.Id );
+                  //badTrac.Fill( nrEventsRead, k+nblbins, (*blpmth)[tmp-k] );
                 }
+                badTrEv.Fill( nrEventsRead, event.Id );                
               }
               break;
             }
@@ -286,8 +291,6 @@ int main (int argc, char *argv[]) {
   }
 
   for ( int id=0; id<totSt; id++ ){
-    if (id==9)
-      cerr << stckOk[id][0] << " " << stckEvt[id] << endl;
     pmthok.Fill( id, (1.*stckOk[id][0])/(1.*stckEvt[id]) );
     pmtlok.Fill( id, (1.*stckOk[id][1])/(1.*stckEvt[id]) );
     pmthun.Fill( id, (1.*stckUn[id][0])/(1.*stckEvt[id]) );
