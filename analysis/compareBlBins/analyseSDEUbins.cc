@@ -16,8 +16,8 @@
 
 using namespace std;
 
-float getmean( int arr[], int nb, int lok ){
-  float mean = 0.;
+double getmean( int arr[], int nb, int lok ){
+  double mean = 0.;
     for (int i=0; i<nb; i++){
       if ( lok == 0 )
         mean += arr[i];
@@ -193,7 +193,30 @@ int main (int argc, char *argv[]) {
   int totDays = 62; // From 1st December, 2020 to 31st January, 2021
   int cday = 1606867200; //2nd December, 2020;
   int dday = 86400; 
-  float tmpMean = 0;
+  double tmpMean = 0;
+  double tmpMeanSt1740f = 0;
+  double tmpMeanSt1740l = 0;
+  double tmpMeanSt1740f2 = 0;
+  double tmpMeanSt1740l2 = 0;
+  double tmpMeanSt1740f3 = 0;
+  double tmpMeanSt1740l3 = 0;
+
+  double tmpMeanSt1818f = 0;
+  double tmpMeanSt1818l = 0;
+  double tmpMeanSt1818f2 = 0;
+  double tmpMeanSt1818l2 = 0;
+  double tmpMeanSt1818f3 = 0;
+  double tmpMeanSt1818l3 = 0;
+
+
+
+
+  TH1F st1740diffDist("st1740diffDist", "Distribution of The Difference of The Mean for he Station 1740's PMT1 HG",31, -15, 15);
+  TH1F st1740diffDist2("st1740diffDist2", "Distribution of The Difference of The Mean for he Station 1740's PMT2 HG",31, -15, 15);
+  TH1F st1740diffDist3("st1740diffDist3", "Distribution of The Difference of The Mean for he Station 1740's PMT3 HG",31, -15, 15);
+  TH1F st1818diffDist("st1818diffDist", "Distribution of The Difference of The Mean for The Station 1818's PMT1 HG", 31, -15, 15); 
+  TH1F st1818diffDist2("st1818diffDist2", "Distribution of The Difference of The Mean for The Station 1818's PMT2 HG", 31, -15, 15); 
+  TH1F st1818diffDist3("st1818diffDist3", "Distribution of The Difference of The Mean for The Station 1818's PMT3 HG", 31, -15, 15); 
   
   // For Low Gain
   TH2F pmtlmeanf("pmtlmeanf", "Mean for First 100 bins of Baseline "+pmtname+" LG", totDays, 0, totDays, totSt, 0, totSt);
@@ -219,6 +242,8 @@ int main (int argc, char *argv[]) {
   int lengthbl = 2048;
 
   int blpmth[lengthbl];
+  int blpmth2[lengthbl];
+  int blpmth3[lengthbl];
   int blpmtl[lengthbl];
 
   unsigned int previusEvent = 0;
@@ -293,7 +318,11 @@ int main (int argc, char *argv[]) {
         if (event.Stations[i].Error==256) { //0+256
           for (unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++){
             blpmth[k] = event.Stations[i].UFadc->GetValue(pmtId-1,0,k);
+            blpmth2[k] = event.Stations[i].UFadc->GetValue(1,0,k);
+            blpmth3[k] = event.Stations[i].UFadc->GetValue(2,0,k);
             blpmtl[k] = event.Stations[i].UFadc->GetValue(pmtId-1,1,k);
+            if (k==1500 && blpmth[k] > 2000)
+              cerr << event.Id << endl;
           }
           for ( int id=0; id<totSt; id++)
             if ( stationsBins[id] == event.Stations[i].Id ){
@@ -311,6 +340,29 @@ int main (int argc, char *argv[]) {
               tmpMean = getmean(blpmtl, nblbins, 1);
               stckMean[id][3] += tmpMean;
               stckRMS[id][3] += getrms(blpmtl, tmpMean, nblbins, 1);
+
+              if (id==9){
+                tmpMeanSt1740f = getmean(blpmth, nblbins, 0);
+                tmpMeanSt1740l = getmean(blpmth, nblbins, 1);
+                st1740diffDist.Fill( tmpMeanSt1740f-tmpMeanSt1740l );
+                tmpMeanSt1740f2 = getmean(blpmth2, nblbins, 0);
+                tmpMeanSt1740l2 = getmean(blpmth2, nblbins, 1);
+                st1740diffDist2.Fill( tmpMeanSt1740f2-tmpMeanSt1740l2 );
+                tmpMeanSt1740f3 = getmean(blpmth3, nblbins, 0);
+                tmpMeanSt1740l3 = getmean(blpmth3, nblbins, 1);
+                st1740diffDist3.Fill( tmpMeanSt1740f3-tmpMeanSt1740l3 );
+              }
+              if (id==16){
+                tmpMeanSt1818f = getmean(blpmth, nblbins, 0);
+                tmpMeanSt1818l = getmean(blpmth, nblbins, 1);
+                st1818diffDist.Fill( tmpMeanSt1818f-tmpMeanSt1818l );
+                tmpMeanSt1818f2 = getmean(blpmth2, nblbins, 0);
+                tmpMeanSt1818l2 = getmean(blpmth2, nblbins, 1);
+                st1818diffDist2.Fill( tmpMeanSt1818f2-tmpMeanSt1818l2 );
+                tmpMeanSt1818f3 = getmean(blpmth3, nblbins, 0);
+                tmpMeanSt1818l3 = getmean(blpmth3, nblbins, 1);
+                st1818diffDist3.Fill( tmpMeanSt1818f3-tmpMeanSt1818l3 );
+              }
               break;
             }
         }

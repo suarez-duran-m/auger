@@ -4,10 +4,10 @@ make
 ./analyseSDEUbins ../../select/listStations.txt pmtId ../dec2020Traces.root ../jan2021Traces.root
 
 Where pmtId regards to the PMT you want to run:
-* 0 For PMT1
-* 1 For PMT2
-* 2 For PMT3
-* 3 For SPMT
+* 1 For PMT1
+* 2 For PMT2
+* 3 For PMT3
+* 4 For SPMT
 * 5 For PMTSSD
 
 

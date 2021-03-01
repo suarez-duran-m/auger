@@ -68,7 +68,7 @@ void plottingBl100bins(int pmtId, int hg){
   const char *stIds[19] = {"863", "1211", "1217", "1219", "1221", "1222", "1223", "1729", "1735", "1740", "1741", "1743", "1745", "1746", "1747", "1791", "1818", "1819", "1851"};
 
   auto plain  = new TStyle("Plain","Plain Style (no colors/fill areas)");
-
+/*
   TCanvas *c1 = new TCanvas("c1", "2D", 0, 0,3600,2400);
   c1->cd();
   c1->SetLeftMargin(0.11);
@@ -177,6 +177,7 @@ void plottingBl100bins(int pmtId, int hg){
   c4.SetGridx();
   pmtrl->Draw("COLZ1");
   c4.Print("../../plots/bl"+printname+"RmsLast100"+hgname+".pdf");
+*/
 
   TCanvas c5("c5", "2D", 0,0,3600,2400);
   c5.cd();
@@ -189,7 +190,7 @@ void plottingBl100bins(int pmtId, int hg){
   pmtdm->GetXaxis()->SetLabelSize(.02);
   pmtdm->GetYaxis()->SetTitle("Station");
   pmtdm->GetZaxis()->SetTitle("FADC");
-  pmtdm->GetZaxis()->SetRangeUser(-2.,8.);
+  pmtdm->GetZaxis()->SetRangeUser(-2.,4.5);
   pmtdm->SetStats(0);
   pmtdm->GetYaxis()->SetNdivisions(1020, "kTRUE");
   pmtdm->GetYaxis()->SetTickLength(0.);
@@ -204,7 +205,8 @@ void plottingBl100bins(int pmtId, int hg){
   c5.SetGridx();
   pmtdm->Draw("COLZ1");
   c5.Print("../../plots/bl"+printname+"Diffmean100"+hgname+".pdf");
-
+  
+/*
   TCanvas c6("c6", "2D", 0,0,3600,2400);
   c6.cd();
   c6.SetLeftMargin(0.11);
@@ -231,21 +233,89 @@ void plottingBl100bins(int pmtId, int hg){
   c6.SetGridx();
   pmtdr->Draw("COLZ1");
   c6.Print("../../plots/bl"+printname+"Diffrms100"+hgname+".pdf");
-
-  
+*/
+ /* 
   TH1F *st1740 = new TH1F("st1740","Distribution of The Difference of The Mean for The Station 1740's PMT1 HG", 320,-1, 30);
   for(int i=0; i<pmtdm->GetXaxis()->GetNbins(); i++){
     if ( pmtdm->GetBinContent(i+1, 10)!=0 )
       st1740->Fill(pmtdm->GetBinContent(i+1, 10));
   }
+*/
+/*
+  TH1F *st1740 = (TH1F*)hFile->Get("st1740diffDist");
+  TH1F *st17402 = (TH1F*)hFile->Get("st1740diffDist2");
+  TH1F *st17403 = (TH1F*)hFile->Get("st1740diffDist3");
 
+  gStyle->SetOptStat(0);
+  gStyle->SetOptTitle(kFALSE);
   TCanvas c7("c7", "2D", 0,0,3600,2400);
+  //c7.SetLeftMargin(0.11);
+  //c7.SetRightMargin(0.135);
+  c7.SetBottomMargin(0.18);
   c7.cd();
   st1740->GetYaxis()->SetTitle("Counts/au");
   st1740->GetXaxis()->SetTitle("Difference of Mean / FADC");
-  c7.SetGridx();
-  c7.SetGridy();
-  st1740->Draw();
+  //c7.SetGridx();
+  //c7.SetGridy()
+  st17403->SetLineColor(880);
+  st17403->Draw();
+  st17402->SetLineColor(kBlue);
+  st17402->Draw("SAME");
+  st1740->SetLineColor(kRed);
+  st1740->Draw("SAME");
+  //gPad->BuildLegend();
+  auto legend = new TLegend(0.1,0.7,0.4,0.9);
+  //legend->SetHeader("The Legend Title","C"); // option "C" allows to center the header
+  legend->AddEntry(st1740,"PMT1 HG");
+  legend->AddEntry((TObject*)0, "Mean: 4.28; RMS: 3.32", "");
+  legend->AddEntry(st17402,"PMT2 HG");
+  legend->AddEntry((TObject*)0, "Mean: 0.71; RMS: 1.32", "");
+  legend->AddEntry(st17403,"PMT3 HG");
+  legend->AddEntry((TObject*)0, "Mean: 0.87; RMS: 1.21", "");
+  //legend->AddEntry("gr","Graph with error bars","lep");
+  legend->Draw();
   c7.Print("../../plots/blDiffMeanSt1740.pdf");
 
+  TH1F *st1818 = (TH1F*)hFile->Get("st1818diffDist");
+  TH1F *st18182 = (TH1F*)hFile->Get("st1818diffDist2");
+  TH1F *st18183 = (TH1F*)hFile->Get("st1818diffDist3");
+
+  //And give the mean and the rms for the histograms
+  cerr << st1740->GetMean() << endl;
+  cerr << st17402->GetMean() << endl;
+  cerr << st17403->GetMean() << endl;
+  cerr << st1740->GetRMS() << endl;
+  cerr << st17402->GetRMS() << endl;
+  cerr << st17403->GetRMS() << endl;
+
+  gStyle->SetOptStat(0);
+  gStyle->SetOptTitle(kFALSE);
+  TCanvas c8("c8", "2D", 0,0,3600,2400);
+  //c8.SetLeftMargin(0.11);
+  //c8.SetRightMargin(0.135);
+  c8.SetBottomMargin(0.18);
+  c8.cd();
+  st1818->GetYaxis()->SetTitle("Counts/au");
+  st1818->GetXaxis()->SetTitle("Difference of Mean / FADC");
+  //c8.SetGridx();
+  //c8.SetGridy()
+  st1818->SetLineColor(880);
+  st1818->Draw();
+  st18182->SetLineColor(2);
+  st18182->Draw("SAME");
+  st18182->SetLineColor(kRed);
+  st18183->Draw("SAME");
+  //gPad->BuildLegend();
+  auto legend2 = new TLegend(0.1,0.7,0.4,0.9);
+  //legend->SetHeader("The Legend Title","C"); // option "C" allows to center the header
+  legend2->AddEntry(st1818,"PMT1 HG");
+  legend2->AddEntry((TObject*)0, "Mean: -0.001; RMS: 0.45", "");
+  legend2->AddEntry(st18182,"PMT2 HG");
+  legend2->AddEntry((TObject*)0, "Mean: -0.01; RMS: 0.46", "");
+  legend2->AddEntry(st18183,"PMT3 HG");
+  legend2->AddEntry((TObject*)0, "Mean: 1.25; RMS: 1.89", "");
+  //legend->AddEntry("gr","Graph with error bars","lep");
+  legend2->Draw();
+  c8.Print("../../plots/blDiffMeanSt1818.pdf");
+*/
 }
